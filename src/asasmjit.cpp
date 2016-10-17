@@ -48,6 +48,9 @@ Error e=m_private->runtime.add(&output, &m_private->code);
 	Compiler::~Compiler()
 	{
 		if (m_private)
+{
+m_private->code.reset(true);
 			delete m_private;
+}
 	}
 }
