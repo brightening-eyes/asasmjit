@@ -20,6 +20,7 @@ code.init(runtime.getCodeInfo());
 }
 
 	err = assembler->getLastError();
+assembler->resetLastError();
 
 	auto a = std::dynamic_pointer_cast<X86Assembler>(assembler);
 	Label suspend = a->newLabel();
