@@ -4,11 +4,11 @@
 
 namespace asasmjit
 {
+typedef bool (*ErrorHandlerCallback) (asmjit::Error e, const char* msg, asmjit::CodeEmitter* c);
 	class Compiler : public asIJITCompiler
 	{
 	private:
 struct priv;
-typedef bool (*ErrorHandlerCallback) (asmjit::Error e, const char* msg, asmjit::CodeEmitter* c);
 	public:
 		Compiler();
 		~Compiler();
