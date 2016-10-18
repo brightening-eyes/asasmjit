@@ -50,8 +50,9 @@ m_private->code.setErrorHandler(&m_private->err);
 		//Call the architecture specific compile function
 		compileFunc(byteCode, end,m_private->assembler,m_private->runtime);
 
-Error e=m_private->runtime.add(&output, &m_private->code);
-		return 0;
+Error e=m_private->runtime.add(&byteCode, &m_private->code);
+*output=ptr_cast<asJITFunction>(byteCode);
+return e;
 	}
 
 	void Compiler::ReleaseJITFunction(asJITFunction func)

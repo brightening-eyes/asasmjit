@@ -7,7 +7,7 @@ namespace asasmjit
 	class Compiler : public asIJITCompiler
 	{
 	private:
-typedef 		struct priv;
+struct priv;
 typedef bool (*ErrorHandlerCallback) (asmjit::Error e, const char* msg, asmjit::CodeEmitter* c);
 	public:
 		Compiler();

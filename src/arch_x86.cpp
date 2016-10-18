@@ -96,6 +96,7 @@ assembler->resetLastError();
 			asBC_PTRARG(bc)= static_cast<asPWORD>(a->getOffset()- firstEntry);
 			}
 			break;
+
 		default:
 			break;
 		}
