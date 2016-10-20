@@ -4,7 +4,6 @@
 
 namespace asasmjit
 {
-typedef bool (*ErrorHandlerCallback) (asmjit::Error e, const char* msg, asmjit::CodeEmitter* c);
 	class Compiler : public asIJITCompiler
 	{
 	private:
@@ -14,7 +13,7 @@ struct priv;
 		~Compiler();
 		int  CompileFunction(asIScriptFunction *function, asJITFunction *output);
 		void ReleaseJITFunction(asJITFunction func);
-void SetErrorCallback(ErrorHandlerCallback cb);
+void SetErrorHandler(asmjit::ErrorHandler*);
 	private:
 		priv* m_private;
 	};
