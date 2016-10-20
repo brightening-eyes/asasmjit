@@ -13,7 +13,6 @@ namespace asasmjit
 	{
 		JitRuntime runtime;
 CodeHolder code;
-		std::shared_ptr<Assembler> assembler;
 	};
 
 	Compiler::Compiler() : m_private(nullptr)
@@ -34,7 +33,7 @@ m_private->code.init(m_private->runtime.getCodeInfo());
 		asDWORD *end = byteCode + length;
 
 		//Call the architecture specific compile function
-		compileFunc(byteCode, end,m_private->assembler,m_private->runtime);
+		compileFunc(byteCode, end, m_private->code);
 
 Error e=m_private->runtime.add(&byteCode, &m_private->code);
 *output=ptr_cast<asJITFunction>(byteCode);

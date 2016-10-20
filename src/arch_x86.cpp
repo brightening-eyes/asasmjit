@@ -3,21 +3,13 @@
 using namespace asasmjit;
 using namespace asmjit;
 
-int asasmjit::compileFunc(asDWORD * bc, asDWORD * end, std::shared_ptr<Assembler>& assembler, JitRuntime & runtime)
+int asasmjit::compileFunc(asDWORD * bc, asDWORD * end, CodeHolder& code)
 {
-	Error err;
+	X86Assembler a(&code);
+Error err=a.getLastError();
 
-	if (assembler == nullptr)
-{
-CodeHolder code;
-code.init(runtime.getCodeInfo());
-		assembler = std::make_shared<X86Assembler>(&code);
-}
-
-	err = assembler->getLastError();
-	auto a =std::dynamic_pointer_cast<X86Assembler>(assembler);
-	Label suspend = a->newLabel();
-	Label start = a->newLabel();
+	Label suspend = a.newLabel();
+	Label start = a.newLabel();
 	//Function prologue
 	X86Gp arg0, arg1,unmut1, unmut2, unmut3, unmut4,sp;
 	#if ASMJIT_ARCH_X64
@@ -46,35 +38,26 @@ code.init(runtime.getCodeInfo());
 	const int prologSize = 4 * pushSize;
 
 	//Push immutable registers
-	a->push(unmut1);
-	a->push(unmut2);
-	a->push(unmut3);
-	a->push(unmut4);
+	a.push(unmut1);
+	a.push(unmut2);
+	a.push(unmut3);
+	a.push(unmut4);
 
 	#if ASMJIT_ARCH_X86
 	//the first 4 bytes on the stack are the return adress
-	a->mov(arg0, x86::ptr(sp, 4 + prologSize));
-	a->mov(arg1, x86::ptr(sp, 8 + prologSize));
+	a.mov(arg0, x86::ptr(sp, 4 + prologSize));
+	a.mov(arg1, x86::ptr(sp, 8 + prologSize));
 	#endif
 
 	//TODO: load vm registers into real registers;
 	//Jump to arg1
-	a->lea(arg1, x86::ptr(start, arg1,0));
-	a->jmp(arg1);
-	a->bind(start);
+	a.lea(arg1, x86::ptr(start, arg1,0));
+	a.bind(start);
 	//start point
-	auto firstEntry = a->getOffset();
+	auto firstEntry = a.getOffset();
 
 	//SUSPEND:
-	//TODO: save registers back into vm
-	a->bind(suspend);
-	//Function epilogue
-	a->pop(unmut4);
-	a->pop(unmut3);
-	a->pop(unmut2);
-	a->pop(unmut1);
-	a->ret();
-
+	a.bind(suspend);
 	while (bc < end)
 	{
 		// Determine the instruction
@@ -82,11 +65,11 @@ code.init(runtime.getCodeInfo());
 		switch (op)
 		{
 		case asBC_SUSPEND:
-			a->jmp(suspend);
+			a.jmp(suspend);
 			break;
 		case asBC_JitEntry:
 			{
-			asBC_PTRARG(bc)= static_cast<asPWORD>(a->getOffset()- firstEntry);
+			asBC_PTRARG(bc)= static_cast<asPWORD>(a.getOffset()- firstEntry);
 			}
 			break;
 
@@ -97,6 +80,15 @@ code.init(runtime.getCodeInfo());
 		// Move to next instruction
 		bc += asBCTypeSize[asBCInfo[op].type];
 	}
+	//TODO: save registers back into vm
+
+	//Function epilogue
+	a.pop(unmut4);
+	a.pop(unmut3);
+	a.pop(unmut2);
+	a.pop(unmut1);
+	a.ret();
+
 
 	return 0;
 }

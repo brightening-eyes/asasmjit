@@ -5,5 +5,5 @@
 
 namespace asasmjit
 {
-	int compileFunc(asDWORD* bc, asDWORD* end,std::shared_ptr<asmjit::Assembler>& assembler,asmjit::JitRuntime& runtime);
+	int compileFunc(asDWORD* bc, asDWORD* end,asmjit::CodeHolder& code);
 }
