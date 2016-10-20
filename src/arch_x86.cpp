@@ -3,11 +3,6 @@
 using namespace asasmjit;
 using namespace asmjit;
 
-extern "C" void alive()
-{
-	std::cout << "alive" << std::endl;
-}
-
 int asasmjit::compileFunc(asDWORD * bc, asDWORD * end, std::shared_ptr<Assembler>& assembler, JitRuntime & runtime)
 {
 	Error err;
@@ -20,9 +15,7 @@ code.init(runtime.getCodeInfo());
 }
 
 	err = assembler->getLastError();
-assembler->resetLastError();
-
-	auto a = std::dynamic_pointer_cast<X86Assembler>(assembler);
+	auto a =std::dynamic_pointer_cast<X86Assembler>(assembler);
 	Label suspend = a->newLabel();
 	Label start = a->newLabel();
 	//Function prologue
