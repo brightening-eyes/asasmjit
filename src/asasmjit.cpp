@@ -13,12 +13,15 @@ namespace asasmjit
 	{
 		JitRuntime runtime;
 CodeHolder code;
+FileLogger* log;
 	};
 
 	Compiler::Compiler() : m_private(nullptr)
 	{
 		m_private = new priv();
 m_private->code.init(m_private->runtime.getCodeInfo());
+m_private->log=new FileLogger(stdout);
+m_private->code.setLogger(m_private->log);
 	}
 
 	int Compiler::CompileFunction(asIScriptFunction *function, asJITFunction *output)
@@ -36,8 +39,12 @@ m_private->code.init(m_private->runtime.getCodeInfo());
 		compileFunc(byteCode, end, m_private->code);
 
 Error e=m_private->runtime.add(&byteCode, &m_private->code);
+if(e)
+{
+return -1;
+}
 *output=ptr_cast<asJITFunction>(byteCode);
-return e;
+return 0;
 	}
 
 	void Compiler::ReleaseJITFunction(asJITFunction func)
@@ -56,6 +63,10 @@ m_private->code.setErrorHandler(e);
 {
 m_private->code.resetErrorHandler();
 m_private->code.reset(true);
+if(m_private->log)
+{
+delete m_private->log;
+}
 			delete m_private;
 }
 	}
