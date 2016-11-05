@@ -7,22 +7,16 @@
 #endif
 using namespace asmjit;
 
-namespace asasmjit
-{
-	struct Compiler::priv
+using namespace asasmjit;
+	Compiler::Compiler()
 	{
-		JitRuntime runtime;
-CodeHolder code;
-FileLogger* log;
-	};
-
-	Compiler::Compiler() : m_private(nullptr)
-	{
-		m_private = new priv();
-m_private->code.init(m_private->runtime.getCodeInfo());
-m_private->log=new FileLogger(stdout);
-m_private->code.setLogger(m_private->log);
+code.init(runtime.getCodeInfo());
+fp=fopen("debugasm.txt", "wb");
+log=new FileLogger(fp);
+code.setLogger(log);
 	}
+
+ASMJIT_DEFINE_TYPE_ID(asSVMRegisters, TypeIdOf<asSVMRegisters*>::kTypeId);
 
 	int Compiler::CompileFunction(asIScriptFunction *function, asJITFunction *output)
 	{
@@ -36,38 +30,40 @@ m_private->code.setLogger(m_private->log);
 		asDWORD *end = byteCode + length;
 
 		//Call the architecture specific compile function
-		compileFunc(byteCode, end, m_private->code);
+		compileFunc(byteCode, end, code);
 
-Error e=m_private->runtime.add(&byteCode, &m_private->code);
+Error e=runtime.add(&byteCode, &code);
 if(e)
 {
 return -1;
 }
+fflush(fp);
 *output=ptr_cast<asJITFunction>(byteCode);
 return 0;
 	}
 
 	void Compiler::ReleaseJITFunction(asJITFunction func)
 	{
-		m_private->runtime.release(reinterpret_cast<void*>(func));
+		runtime.release(reinterpret_cast<void*>(func));
+fflush(fp);
 	}
 
 void Compiler::SetErrorHandler(ErrorHandler* e)
 {
-m_private->code.setErrorHandler(e);
+code.setErrorHandler(e);
 }
 
 	Compiler::~Compiler()
 	{
-		if (m_private)
+code.resetErrorHandler();
+code.reset(true);
+if(log)
 {
-m_private->code.resetErrorHandler();
-m_private->code.reset(true);
-if(m_private->log)
-{
-delete m_private->log;
+delete log;
 }
-			delete m_private;
+if(fp)
+{
+fflush(fp);
+fclose(fp);
 }
 	}
-}
