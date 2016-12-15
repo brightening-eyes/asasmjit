@@ -5,5 +5,5 @@
 
 namespace asasmjit
 {
-int compileFunc(asDWORD* bc, asDWORD* end,asmjit::CodeHolder& code);
+asmjit::Error compileFunc(asDWORD* bc, asDWORD* end, asIScriptFunction* function, asmjit::CodeHolder& code);
 }

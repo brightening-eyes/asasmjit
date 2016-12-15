@@ -25,20 +25,24 @@ int Compiler::CompileFunction(asIScriptFunction *function, asJITFunction *output
     if (byteCode == 0 || length == 0)
     {
         output = 0;
-        return 1;
+return 1;
     }
     asDWORD *end = byteCode + length;
 
     //Call the architecture specific compile function
-    compileFunc(byteCode, end, code);
-
+Error e=    compileFunc(byteCode, end, function, code);
+if(e) //errors occured, return from function
+{
+output=0;
+return asERROR;
+}
 //add our function to the runtime to be able to execute it
 
-Error e=runtime.add(&output, &code);
+e=runtime.add(&output, &code);
 if(e)
 {
 output=0;
-return 1;
+return asOUT_OF_MEMORY;
 }
     fflush(fp);
 //we're done, let's return 0
@@ -54,6 +58,11 @@ runtime.release(func);
 void Compiler::SetErrorHandler(ErrorHandler* e)
 {
     code.setErrorHandler(e);
+}
+
+asmjit::ErrorHandler* Compiler::GetErrorHandler()
+{
+return code.getErrorHandler();
 }
 
 Compiler::~Compiler()

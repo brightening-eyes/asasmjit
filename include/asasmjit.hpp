@@ -14,9 +14,10 @@ private:
     FILE* fp;
 public:
     Compiler();
-    ~Compiler();
+virtual     ~Compiler();
     int  CompileFunction(asIScriptFunction *function, asJITFunction *output);
     void ReleaseJITFunction(asJITFunction func);
     void SetErrorHandler(asmjit::ErrorHandler*);
+asmjit::ErrorHandler* GetErrorHandler();
 };
 }
